@@ -1,9 +1,11 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException, UseGuards } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { UpdateAddressDto } from "./dto/update-address.dto";
 import { GetAddress } from "./decorator";
 import { NewAddressDto } from "./dto";
+import { JwtGuard } from "src/auth/guard";
 
+@UseGuards(JwtGuard)
 @Injectable()
 export class AddressService {
   constructor(private prisma: PrismaService) {}

@@ -48,7 +48,7 @@ model Address {
   complement String?
   number     Int
   country    String  @default("Brasil")
-  isDefault  Boolean @default(false)
+  isDefault  Boolean? @default(false)
   userId     Int
   user       User    @relation(fields: [userId], references: [id])
 }

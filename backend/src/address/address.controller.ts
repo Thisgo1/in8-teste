@@ -30,7 +30,7 @@ export class AddressController {
   }
 
   @Post()
-  createAddress(@GetUser('id') userId: number, dto: NewAddressDto) {
+  createAddress(@GetUser('id') userId: number,@Body() dto: NewAddressDto) {
     return this.AddressService.createAddress(userId, dto);
   }
 

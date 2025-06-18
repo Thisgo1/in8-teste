@@ -42,5 +42,5 @@ export class NewAddressDto {
   country: string;
 
   @IsBoolean()
-  isDefault: boolean;
+  isDefault?: boolean;
 }

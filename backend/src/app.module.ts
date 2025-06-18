@@ -6,6 +6,11 @@ import { AuthController } from "./auth/auth.controller";
 import { UserModule } from "./user/user.module";
 import { BookmarkModule } from "./bookmark/bookmark.module";
 import { ConfigModule } from "@nestjs/config";
+import { AddressController } from './address/address.controller';
+import { AddressService } from './address/address.service';
+import { AddressModule } from './address/address.module';
+import { ProductsModule } from './products/products.module';
+import { ProvidersModule } from './providers/providers.module';
 
 @Module({
   imports: [
@@ -14,6 +19,11 @@ import { ConfigModule } from "@nestjs/config";
     AuthModule,
     UserModule,
     BookmarkModule,
+    AddressModule,
+    ProductsModule,
+    ProvidersModule,
   ],
+  controllers: [AddressController],
+  providers: [AddressService],
 })
 export class AppModule {}

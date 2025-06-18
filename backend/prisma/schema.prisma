@@ -45,6 +45,8 @@ model Address {
   city       String
   state      String
   postalCode String
+  complement String?
+  number     Int
   country    String  @default("Brasil")
   isDefault  Boolean @default(false)
   userId     Int

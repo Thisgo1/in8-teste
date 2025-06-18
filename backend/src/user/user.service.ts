@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -31,6 +32,9 @@ export class UserService {
   }
 
   async updateUser(userId: number, dto: UpdateUserDto) {
+    if (!dto) {
+      throw new BadRequestException("Nenhum dado fornecido para atualização");
+    }
     if (dto.email) {
       //verifica se o novo email já não esta em uso por outra pessoa
       const emailExists = await this.prisma.user.findFirst({

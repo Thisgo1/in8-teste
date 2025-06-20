@@ -1,103 +1,212 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+import { useState } from "react";
+import { useProducts } from "@/hooks/useProducts";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import Header from "@/components/Header";
+import { ProductListItem } from "@/components/products/ProductListItem";
+import { HorizontalProductCarousel } from "@/components/products/HorizontalProductCarousel";
+import { MOCK_PRODUCTS } from "@/data/mockProduct";
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+export default function ProductsPage() {
+	const [searchQuery, setSearchQuery] = useState("");
+	const [showMock, setShowMock] = useState(false);
+
+	// Use o hook atualizado
+	const {
+		products,
+		loading,
+		error,
+		newProducts,
+		bestSellingProducts,
+		hasMore,
+		refetch,
+		search,
+		loadMore,
+	} = useProducts();
+
+	const handleSearch = () => {
+		search(searchQuery);
+	};
+
+	return (
+		<main>
+			<div className="container mx-auto px-4 py-8">
+				<div className="mb-24">
+					<Header />
+				</div>
+
+				{/* Seção de Novos Produtos */}
+				<section className="mb-16">
+					<div className="flex justify-between items-center mb-6">
+						<h1 className="text-3xl font-bold">Novos Produtos</h1>
+						<Button variant="link" className="text-primary">
+							Ver todos
+						</Button>
+					</div>
+
+					{loading ? (
+						<CarouselSkeleton />
+					) : (
+						<HorizontalProductCarousel
+							products={newProducts.map((p) => ({
+								id: p.id,
+								name: p.name,
+								price: parseFloat(p.price),
+								averageRating: p.averageRating || 4.0,
+								ratingCount: p.ratingCount || 0,
+								imageUrl: p.image || "/placeholder-product.jpg",
+							}))}
+						/>
+					)}
+				</section>
+
+				{/* Seção de Produtos Mais Vendidos */}
+				<section className="mb-16">
+					<div className="flex justify-between items-center mb-6">
+						<h1 className="text-3xl font-bold">Produtos Mais Vendidos</h1>
+						<Button variant="link" className="text-primary">
+							Ver todos
+						</Button>
+					</div>
+
+					{loading ? (
+						<CarouselSkeleton />
+					) : (
+						<HorizontalProductCarousel
+							products={bestSellingProducts.map((p) => ({
+								id: p.id,
+								name: p.name,
+								price: parseFloat(p.price),
+								averageRating: p.averageRating || 4.0,
+								ratingCount: p.ratingCount || 0,
+								imageUrl: p.image || "/placeholder-product.jpg",
+							}))}
+						/>
+					)}
+				</section>
+
+				{/* Seção de Todos os Produtos */}
+				<section>
+					<div className="flex justify-between items-center mb-6">
+						<h1 className="text-3xl font-bold">Todos os Produtos</h1>
+
+						{/* Barra de busca */}
+						<div className="flex gap-2 w-1/3">
+							<Input
+								placeholder="Buscar produtos..."
+								value={searchQuery}
+								onChange={(e) => setSearchQuery(e.target.value)}
+								onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+							/>
+							<Button onClick={handleSearch}>Buscar</Button>
+						</div>
+					</div>
+
+					{!loading && products.length === 0 && (
+						<div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+							<div className="flex">
+								<div className="ml-3">
+									<p className="text-sm text-yellow-700">
+										Estamos exibindo produtos de exemplo. Nenhum produto real
+										foi encontrado.
+									</p>
+								</div>
+							</div>
+						</div>
+					)}
+
+					{loading ? (
+						<ProductsGridSkeleton />
+					) : products.length === 0 ? (
+						<NoProducts showMock={() => setShowMock(true)} />
+					) : (
+						<>
+							<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+								{products.map((product) => (
+									<ProductListItem
+										key={`${product.provider}-${product.id}`}
+										product={{
+											id: product.id,
+											name: product.name,
+											price: parseFloat(product.price),
+											averageRating: product.averageRating || 4.0,
+											ratingCount: product.ratingCount || 0,
+											imageUrl: product.image || "/placeholder-product.jpg",
+										}}
+									/>
+								))}
+							</div>
+
+							{hasMore && (
+								<div className="mt-8 flex justify-center">
+									<Button onClick={loadMore} disabled={loading}>
+										{loading ? "Carregando..." : "Carregar mais produtos"}
+									</Button>
+								</div>
+							)}
+						</>
+					)}
+
+					{showMock && (
+						<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-8">
+							{MOCK_PRODUCTS.map((product) => (
+								<ProductListItem
+									key={product.id}
+									product={{
+										id: product.id,
+										name: product.name,
+										price: product.price,
+										averageRating: product.averageRating,
+										ratingCount: product.ratingCount,
+										imageUrl: product.imageUrl,
+									}}
+								/>
+							))}
+						</div>
+					)}
+				</section>
+			</div>
+		</main>
+	);
 }
+
+// Componentes auxiliares
+const CarouselSkeleton = () => (
+	<div className="flex space-x-4 overflow-hidden">
+		{Array.from({ length: 4 }).map((_, index) => (
+			<div key={index} className="flex-shrink-0 w-56">
+				<Skeleton className="w-full h-[174px] rounded-lg" />
+				<Skeleton className="h-4 w-full mt-2" />
+				<Skeleton className="h-4 w-3/4 mt-1" />
+				<Skeleton className="h-6 w-1/2 mt-2" />
+			</div>
+		))}
+	</div>
+);
+
+const ProductsGridSkeleton = () => (
+	<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+		{Array.from({ length: 8 }).map((_, index) => (
+			<div key={index} className="border rounded-lg overflow-hidden">
+				<Skeleton className="w-full h-[174px]" />
+				<div className="p-3">
+					<Skeleton className="h-4 w-full mb-2" />
+					<Skeleton className="h-4 w-3/4 mb-2" />
+					<Skeleton className="h-6 w-1/2" />
+				</div>
+			</div>
+		))}
+	</div>
+);
+
+const NoProducts = ({ showMock }: { showMock: () => void }) => (
+	<div className="text-center py-12">
+		<p className="text-lg text-gray-600">Nenhum produto encontrado.</p>
+		<Button className="mt-4" onClick={showMock}>
+			Ver produtos de exemplo
+		</Button>
+	</div>
+);

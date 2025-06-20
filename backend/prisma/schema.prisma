@@ -22,6 +22,7 @@ model User {
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   PaymentMethods PaymentMethods[]
+  ProductRating  ProductRating[]
 
   @@map("users")
 }
@@ -83,17 +84,32 @@ model Order {
   updatedAt   DateTime    @updatedAt
 }
 
+model ProductRating {
+  id        Int          @id @default(autoincrement())
+  productId String // ID do produto na API externa
+  provider  ProviderType
+  userId    Int
+  user      User         @relation(fields: [userId], references: [id])
+  rating    Float        @default(0.0) // 0.5 a 5.0 (incrementos de 0.5)
+  comment   String?
+  createdAt DateTime     @default(now())
+
+  @@unique([productId, provider, userId]) // 1 avaliação por usuário por produto
+}
+
 model ProductSnapshot {
-  id          String       @id @default(uuid())
-  productId   String
-  name        String
-  price       Float
-  description String?
-  imageUrl    String?
-  provider    ProviderType
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  OrderItem   OrderItem[]
+  id            String       @id @default(uuid())
+  productId     String
+  name          String
+  price         Float
+  description   String?
+  imageUrl      String?
+  provider      ProviderType
+  averageRating Float?       @default(0.0)
+  ratingCount   Int          @default(0)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  OrderItem     OrderItem[]
 
   @@index([productId])
 }

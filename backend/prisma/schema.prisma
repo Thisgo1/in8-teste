@@ -19,10 +19,24 @@ model User {
   orders    Order[]
   bookmarks Bookmark[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  PaymentMethods PaymentMethods[]
 
   @@map("users")
+}
+
+model PaymentMethods {
+  id          Int             @id @default(autoincrement())
+  userId      Int
+  user        User            @relation(fields: [userId], references: [id])
+  provider    PaymentProvider
+  last4Digits String?
+  brand       String?
+  isDefault   Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  isMock      Boolean         @default(true)
 }
 
 model Bookmark {
@@ -40,17 +54,18 @@ model Bookmark {
 }
 
 model Address {
-  id         Int     @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   street     String
   city       String
   state      String
   postalCode String
   complement String?
   number     Int
-  country    String  @default("Brasil")
+  country    String   @default("Brasil")
   isDefault  Boolean? @default(false)
   userId     Int
-  user       User    @relation(fields: [userId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+  Order      Order[]
 }
 
 model Order {
@@ -62,19 +77,45 @@ model Order {
   total       Float
   status      OrderStatus @default(PENDING)
   paymentId   String?
+  addressId   Int?
+  address     Address?    @relation(fields: [addressId], references: [id])
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 }
 
+model ProductSnapshot {
+  id          String       @id @default(uuid())
+  productId   String
+  name        String
+  price       Float
+  description String?
+  imageUrl    String?
+  provider    ProviderType
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  OrderItem   OrderItem[]
+
+  @@index([productId])
+}
+
 model OrderItem {
-  id        Int          @id @default(autoincrement())
-  orderId   Int
-  order     Order        @relation(fields: [orderId], references: [id])
-  productId String // ID do produto na API externa
-  name      String
-  price     Float
-  quantity  Int
-  provider  ProviderType // BRASILIAN ou EUROPEAN
+  id          Int              @id @default(autoincrement())
+  orderId     Int
+  order       Order            @relation(fields: [orderId], references: [id])
+  productId   String // ID do produto na API externa
+  name        String
+  price       Float
+  quantity    Int
+  provider    ProviderType
+  imageUrl    String?
+  description String?
+  snapshotId  String?
+  snapshot    ProductSnapshot? @relation(fields: [snapshotId], references: [id])
+
+  discount Float?  @default(0.0)
+  notes    String?
+
+  @@index([productId])
 }
 
 enum OrderStatus {
@@ -88,4 +129,11 @@ enum OrderStatus {
 enum ProviderType {
   BRASILIAN
   EUROPEAN
+}
+
+enum PaymentProvider {
+  CREDIT_CARD
+  PIX
+  PAYPAL
+  BANK_SLIT
 }

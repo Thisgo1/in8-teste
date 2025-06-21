@@ -109,6 +109,7 @@ export default function User() {
 		}
 	};
 	console.log(user);
+	console.log(orders);
 
 	if (userLoading || ordersLoading || addressesLoading) {
 		return (
@@ -205,35 +206,42 @@ export default function User() {
 				) : (
 					<div className="flex overflow-x-auto pb-4 gap-4 scrollbar-hide">
 						{orders.slice(0, 4).map((order) => {
+						console.log(order)
 							const statusInfo = getStatusInfo(order.status);
 							return (
-								<Card key={order.id} className="min-w-[280px] flex-shrink-0">
-									<CardHeader className="pb-2">
-										<div className="flex justify-between items-start">
-											<CardTitle className="text-lg">
-												Pedido #{order.id}
-											</CardTitle>
-											<Badge className={statusInfo.color}>
-												{statusInfo.icon}
-												<span className="ml-1">{statusInfo.text}</span>
-											</Badge>
-										</div>
-									</CardHeader>
-									<CardContent>
-										<div className="flex justify-between text-sm mb-2">
-											<span>
-												{order.items.length}{" "}
-												{order.items.length > 1 ? "itens" : "item"}
-											</span>
-											<span className="font-semibold">
-												R$ {order.total.toFixed(2)}
-											</span>
-										</div>
-										<Button variant="outline" className="w-full mt-2" asChild>
-											<Link href={`/orders/${order.id}`}>Ver detalhes</Link>
-										</Button>
-									</CardContent>
-								</Card>
+								<Link
+									href={`/orders/${order.id}`}
+									key={order.id}
+									className="min-w-[280px] flex-shrink-0"
+								>
+									<Card className="h-full transition-transform hover:scale-[1.02]">
+										<CardHeader className="pb-2">
+											<div className="flex justify-between items-start">
+												<CardTitle className="text-lg">
+													Pedido #{order.id}
+												</CardTitle>
+												<Badge className={statusInfo.color}>
+													{statusInfo.icon}
+													<span className="ml-1">{statusInfo.text}</span>
+												</Badge>
+											</div>
+										</CardHeader>
+										<CardContent>
+											<div className="flex justify-between text-sm mb-2">
+												<span>
+													{order.items.length}{" "}
+													{order.items.length > 1 ? "itens" : "item"}
+												</span>
+												<span className="font-semibold">
+													R$ {order.total.toFixed(2)}
+												</span>
+											</div>
+											<Button variant="outline" className="w-full mt-2">
+												Ver detalhes
+											</Button>
+										</CardContent>
+									</Card>
+								</Link>
 							);
 						})}
 					</div>

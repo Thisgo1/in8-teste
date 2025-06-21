@@ -1,4 +1,4 @@
-// src/hooks/useAuth.ts
+
 import { api } from "@/services/api";
 import { useState } from "react";
 

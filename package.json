@@ -1,0 +1,12 @@
+{
+  "name": "in8-docker",
+  "scripts": {
+    "dev": "docker-compose up -d",
+    "install:all": "(cd backend && npm install) && (cd frontend && npm install)",
+    "dev:full": "npm run install:all && docker-compose up -d --build db backend frontend",
+    "logs": "docker-compose logs -f",
+    "down": "docker-compose down",
+    "prisma:migrate": "docker-compose exec backend npx prisma migrate dev",
+    "prisma:studio": "docker-compose exec backend npx prisma studio"
+  }
+}

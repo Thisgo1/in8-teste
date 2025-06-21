@@ -192,8 +192,26 @@ export const api = {
 		getAll: async (token: string) =>
 			authFetch("/orders", { method: "GET" }, token),
 
-		getById: async (orderId: number, token: string) =>
-			authFetch(`/orders/${orderId}`, { method: "GET" }, token),
+		getById: async (orderId: number, token: string) => {
+			const order = await authFetch(
+				`/orders/${orderId}`,
+				{ method: "GET" },
+				token
+			);
+
+			return {
+				...order,
+				items: order.items.map((item: any) => ({
+					...item,
+					product: {
+						id: item.productId,
+						name: item.productName,
+						price: item.price,
+						imageUrl: item.productImage || "/placeholder-product.jpg",
+					},
+				})),
+			};
+		},
 
 		updateStatus: async (
 			orderId: number,

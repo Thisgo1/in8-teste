@@ -17,8 +17,17 @@ export const useUserOrders = () => {
 				}
 
 				const ordersData = await api.orders.getAll(token);
-				console.log("Pedidos recebidos:", ordersData); // Para depuração
-				setOrders(ordersData);
+				const formattedOrders = ordersData.map((order) => ({
+					...order,
+					total:
+						order.total ||
+						order.items.reduce(
+							(sum, item) => sum + item.price * item.quantity,
+							0
+						),
+				}));
+
+				setOrders(formattedOrders);
 			} catch (err) {
 				setError("Erro ao carregar pedidos");
 				console.error(err);

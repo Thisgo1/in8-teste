@@ -2,7 +2,12 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
+  "scripts": { "frontend:docker:build": "docker compose build frontend",
+  "frontend:docker:up": "docker compose up -d frontend",
+  "frontend:docker:down": "docker compose rm -s -f -v frontend",
+  "frontend:docker:restart": "npm run frontend:docker:down && npm run frontend:docker:up",
+  "frontend:docker:logs": "docker compose logs -f frontend",
+  "frontend:dev": "npm run frontend:docker:restart",
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",

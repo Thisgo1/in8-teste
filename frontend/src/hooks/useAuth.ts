@@ -1,4 +1,3 @@
-
 import { api } from "@/services/api";
 import { useState } from "react";
 
@@ -6,11 +5,44 @@ export const useAuth = () => {
 	const [token, setToken] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-
-	const login = async (email: string, password: string): Promise<boolean> => {
+	const signup = async (userData: {
+		firstName: string;
+		lastName: string;
+		email: string;
+		password: string;
+	}): Promise<boolean> => {
 		setIsLoading(true);
 		setError(null);
 
+		try {
+			const data = await api.auth.signup(userData);
+
+			// Se o backend retornar um token após o cadastro
+			const accessToken = data.access_token || data.token;
+			if (accessToken) {
+				setToken(accessToken);
+				localStorage.setItem("token", accessToken);
+			}
+
+			setIsLoading(false);
+			return true;
+		} catch (err: any) {
+			let errorMessage = "Erro ao criar conta";
+
+			if (err.response?.data?.message) {
+				errorMessage = err.response.data.message;
+			} else if (err.message) {
+				errorMessage = err.message;
+			}
+
+			setError(errorMessage);
+			setIsLoading(false);
+			return false;
+		}
+	};
+	const login = async (email: string, password: string): Promise<boolean> => {
+		setIsLoading(true);
+		setError(null);
 		try {
 			const data = await api.auth.signin({ email, password });
 
@@ -51,5 +83,5 @@ export const useAuth = () => {
 		}
 	};
 
-	return { token, login, logout, isLoading, error };
+	return { token, signup, login, logout, isLoading, error };
 };

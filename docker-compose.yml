@@ -1,7 +1,6 @@
 version: "3.8"
 
 services:
-  # Banco de dados
   db:
     image: postgres:13
     environment:
@@ -13,7 +12,6 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  # Backend (NestJS)
   backend:
     build:
       context: ./backend
@@ -28,7 +26,6 @@ services:
     depends_on:
       - db
 
-  # Frontend (Next.js)
   frontend:
     build:
       context: ./frontend
@@ -38,7 +35,6 @@ services:
     volumes:
       - ./frontend:/usr/src/app
       - /usr/src/app/node_modules
-      - /usr/src/app/.next
     depends_on:
       - backend
 

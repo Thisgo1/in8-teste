@@ -2,7 +2,8 @@
   "name": "in8-docker",
   "scripts": {
     "dev": "docker-compose up -d",
-    "install:all": "(cd backend && npm install) && (cd frontend && npm install)",
+    "install:all": "npm --prefix backend install && npm --prefix frontend install",
+
     "dev:full": "npm run install:all && docker-compose up -d --build db backend frontend",
     "logs": "docker-compose logs -f",
     "down": "docker-compose down",

@@ -265,10 +265,9 @@ export default function ProductDetailsPage({
 			<section className="flex-1 px-4 pb-20">
 				{/* Imagem do Produto */}
 				<div className="relative w-full h-64 mb-4 bg-gray-100 rounded-lg">
-					<Image
+					<img
 						src={product.imageUrl || "/placeholder-product.jpg"}
 						alt={product.name}
-						fill
 						className="object-contain"
 						priority
 					/>

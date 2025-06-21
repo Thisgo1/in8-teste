@@ -1,3 +1,4 @@
+"use client";
 import Header from "@/components/Header";
 import CartItem from "@/components/products/CartItem";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import useCart from "@/hooks/useCart";
+import { useState } from "react";
 
 export default function Cart() {
 	const {

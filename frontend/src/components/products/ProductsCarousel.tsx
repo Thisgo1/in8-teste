@@ -95,10 +95,9 @@ export function ProductCarousel({
 									<Card>
 										<CardContent className="flex flex-col items-center p-4">
 											<div className="relative w-full h-48 mb-4">
-												<Image
+												<img
 													src={product.imageUrl}
 													alt={product.name}
-													fill
 													className="object-contain opacity-75"
 												/>
 											</div>
@@ -118,10 +117,9 @@ export function ProductCarousel({
 										<Card className="hover:shadow-lg transition-shadow">
 											<CardContent className="flex flex-col items-center p-4">
 												<div className="relative w-full h-48 mb-4">
-													<Image
+													<img
 														src={product.imageUrl || "/placeholder-product.jpg"}
 														alt={product.name}
-														fill
 														className="object-contain"
 													/>
 												</div>

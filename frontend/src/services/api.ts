@@ -21,7 +21,6 @@ const PROVIDER_URLS = {
 		"http://616d6bdb6dacbb001794ca17.mockapi.io/devnology/european_provider",
 };
 
-// Helper para requisições autenticadas
 const authFetch = async (
 	url: string,
 	options: RequestInit = {},
@@ -40,9 +39,17 @@ const authFetch = async (
 			credentials: "include",
 		});
 
+		// Tratamento especial para status 401 (não autorizado)
+		if (res.status === 401) {
+			localStorage.removeItem("token");
+			throw new Error("Não autorizado - sessão expirada");
+		}
+
 		if (!res.ok) {
 			const errorData = await res.json().catch(() => ({}));
-			throw new Error(errorData.message || "Erro na requisição");
+			const errorMessage =
+				errorData.message || `Erro ${res.status} na requisição`;
+			throw new Error(errorMessage);
 		}
 
 		return await res.json();
@@ -51,6 +58,7 @@ const authFetch = async (
 		throw error;
 	}
 };
+
 const publicFetch = async <T>(url: string): Promise<T> => {
 	try {
 		const response = await fetch(url);
@@ -66,53 +74,53 @@ const publicFetch = async <T>(url: string): Promise<T> => {
 
 export const api = {
 	// APIs dos providers
-  providers: {
-    getBrazilian: async (): Promise<BrazilianProduct[]> => {
-      return publicFetch<BrazilianProduct[]>(PROVIDER_URLS.brazilian);
-    },
-    
-    getEuropean: async (): Promise<EuropeanProduct[]> => {
-      return publicFetch<EuropeanProduct[]>(PROVIDER_URLS.european);
-    },
-    
-    getAll: async (): Promise<UnifiedProduct[]> => {
-      try {
-        const [brasilianProducts, europeanProducts] = await Promise.all([
-          api.providers.getBrazilian(),
-          api.providers.getEuropean(),
-        ]);
+	providers: {
+		getBrazilian: async (): Promise<BrazilianProduct[]> => {
+			return publicFetch<BrazilianProduct[]>(PROVIDER_URLS.brazilian);
+		},
 
-        const unified: UnifiedProduct[] = [
-          ...brasilianProducts.map(p => ({
-            id: p.id,
-            name: p.nome,
-            description: p.descricao,
-            price: p.preco,
-            image: p.imagem,
-            provider: "BRASILIAN" as ProviderType,
-            material: p.material,
-            category: p.categoria,
-          })),
-          ...europeanProducts.map(p => ({
-            id: p.id,
-            name: p.name,
-            description: p.description,
-            price: p.price,
-            image: p.gallery[0] || "",
-            provider: "EUROPEAN" as ProviderType,
-            hasDiscount: p.hasDiscount,
-            discountValue: p.discountValue,
-            material: p.details.material,
-          })),
-        ];
+		getEuropean: async (): Promise<EuropeanProduct[]> => {
+			return publicFetch<EuropeanProduct[]>(PROVIDER_URLS.european);
+		},
 
-        return unified;
-      } catch (error) {
-        console.error("Erro ao unificar produtos:", error);
-        throw error;
-      }
-    },
-  },
+		getAll: async (): Promise<UnifiedProduct[]> => {
+			try {
+				const [brasilianProducts, europeanProducts] = await Promise.all([
+					api.providers.getBrazilian(),
+					api.providers.getEuropean(),
+				]);
+
+				const unified: UnifiedProduct[] = [
+					...brasilianProducts.map((p) => ({
+						id: p.id,
+						name: p.nome,
+						description: p.descricao,
+						price: p.preco,
+						image: p.imagem,
+						provider: "BRASILIAN" as ProviderType,
+						material: p.material,
+						category: p.categoria,
+					})),
+					...europeanProducts.map((p) => ({
+						id: p.id,
+						name: p.name,
+						description: p.description,
+						price: p.price,
+						image: p.gallery[0] || "",
+						provider: "EUROPEAN" as ProviderType,
+						hasDiscount: p.hasDiscount,
+						discountValue: p.discountValue,
+						material: p.details.material,
+					})),
+				];
+
+				return unified;
+			} catch (error) {
+				console.error("Erro ao unificar produtos:", error);
+				throw error;
+			}
+		},
+	},
 	// Autenticação
 	auth: {
 		signup: async (userData: RegisterDto) =>

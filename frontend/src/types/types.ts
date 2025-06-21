@@ -99,15 +99,20 @@ export type EuropeanProduct = {
 	id: string;
 };
 
-export type UnifiedProduct = {
+export interface UnifiedProduct {
 	id: string;
 	name: string;
 	description: string;
 	price: string;
 	image: string;
 	provider: ProviderType;
-	hasDiscount?: boolean;
-	discountValue?: string;
 	material?: string;
 	category?: string;
-};
+	hasDiscount?: boolean;
+	discountValue?: string;
+
+	// Novas propriedades adicionadas
+	averageRating?: number;
+	ratingCount?: number;
+	fullDescription?: string;
+}

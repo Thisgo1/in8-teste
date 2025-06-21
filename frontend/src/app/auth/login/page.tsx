@@ -30,6 +30,15 @@ export default function Login() {
 	const { login, error, isLoading } = useAuth();
 	const [isRedirecting, setIsRedirecting] = useState(false);
 
+	// Redirecionar se já estiver logado
+	useEffect(() => {
+		const token = localStorage.getItem("token");
+		if (token) {
+			setIsRedirecting(true);
+			router.push("/");
+		}
+	}, [router]);
+
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: { email: "", password: "" },

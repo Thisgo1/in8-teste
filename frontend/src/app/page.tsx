@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useProducts } from "@/hooks/useProducts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,9 +9,17 @@ import Header from "@/components/Header";
 import { ProductListItem } from "@/components/products/ProductListItem";
 import { HorizontalProductCarousel } from "@/components/products/HorizontalProductCarousel";
 import { MOCK_PRODUCTS } from "@/data/mockProduct";
+import {
+	Pagination,
+	PaginationContent,
+	PaginationItem,
+	PaginationLink,
+	PaginationNext,
+	PaginationPrevious,
+	PaginationEllipsis,
+} from "@/components/ui/pagination";
 
 export default function ProductsPage() {
-	const [searchQuery, setSearchQuery] = useState("");
 	const [showMock, setShowMock] = useState(false);
 
 	// Use o hook atualizado
@@ -21,15 +29,32 @@ export default function ProductsPage() {
 		error,
 		newProducts,
 		bestSellingProducts,
-		hasMore,
-		refetch,
+		currentPage,
+		totalPages,
+		totalProducts,
+		goToPage,
 		search,
-		loadMore,
+		searchQuery,
+		itemsPerPage,
+		updateItemsPerPage, // Recebemos o searchQuery do hook
 	} = useProducts();
+
+	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const value = e.target.value;
+	};
 
 	const handleSearch = () => {
 		search(searchQuery);
 	};
+
+	const triggerSearch = () => {
+		search(searchQuery);
+	};
+
+	// Resetar para a primeira página quando mudar o número de itens por página
+	useEffect(() => {
+		goToPage(1);
+	}, [itemsPerPage, goToPage]);
 
 	return (
 		<main>
@@ -90,18 +115,39 @@ export default function ProductsPage() {
 
 				{/* Seção de Todos os Produtos */}
 				<section>
-					<div className="flex justify-between items-center mb-6">
+					<div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
 						<h1 className="text-3xl font-bold">Todos os Produtos</h1>
 
-						{/* Barra de busca */}
-						<div className="flex gap-2 w-1/3">
-							<Input
-								placeholder="Buscar produtos..."
-								value={searchQuery}
-								onChange={(e) => setSearchQuery(e.target.value)}
-								onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-							/>
-							<Button onClick={handleSearch}>Buscar</Button>
+						<div className="flex flex-col md:flex-row items-end gap-4 w-full md:w-auto">
+							{/* Info de paginação */}
+							<div className="text-sm text-gray-600">
+								Página {currentPage} de {totalPages} • {totalProducts} produtos
+							</div>
+
+							{/* Seletor de itens por página */}
+							<div className="flex items-center gap-2">
+								<span className="text-sm text-gray-600">Itens por página:</span>
+								<select
+									value={itemsPerPage}
+									onChange={(e) => updateItemsPerPage(Number(e.target.value))}
+									className="border rounded-md px-2 py-1 text-sm"
+								>
+									<option value="10">10</option>
+									<option value="20">20</option>
+									<option value="50">50</option>
+								</select>
+							</div>
+
+							{/* Barra de busca */}
+							<div className="flex gap-2 w-full md:w-64">
+								<Input
+									placeholder="Buscar produtos..."
+									value={searchQuery}
+									onChange={(e) => search(e.target.value)}
+									onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+								/>
+								<Button onClick={handleSearch}>Buscar</Button>
+							</div>
 						</div>
 					</div>
 
@@ -110,8 +156,9 @@ export default function ProductsPage() {
 							<div className="flex">
 								<div className="ml-3">
 									<p className="text-sm text-yellow-700">
-										Estamos exibindo produtos de exemplo. Nenhum produto real
-										foi encontrado.
+										{searchQuery
+											? `Nenhum produto encontrado com o termo "${searchQuery}"`
+											: "Estamos exibindo produtos de exemplo. Nenhum produto real foi encontrado."}
 									</p>
 								</div>
 							</div>
@@ -140,11 +187,63 @@ export default function ProductsPage() {
 								))}
 							</div>
 
-							{hasMore && (
-								<div className="mt-8 flex justify-center">
-									<Button onClick={loadMore} disabled={loading}>
-										{loading ? "Carregando..." : "Carregar mais produtos"}
-									</Button>
+							{/* Controles de paginação */}
+							{totalPages > 1 && (
+								<div className="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+									<div className="text-sm text-gray-600">
+										Mostrando {(currentPage - 1) * itemsPerPage + 1} -{" "}
+										{Math.min(currentPage * itemsPerPage, totalProducts)} de{" "}
+										{totalProducts} produtos
+									</div>
+
+									<Pagination>
+										<PaginationContent>
+											<PaginationItem>
+												<PaginationPrevious
+													onClick={() => goToPage(currentPage - 1)}
+													disabled={currentPage === 1}
+												/>
+											</PaginationItem>
+
+											{/* Números de página */}
+											{Array.from(
+												{ length: Math.min(5, totalPages) },
+												(_, i) => {
+													const startPage = Math.max(
+														1,
+														Math.min(totalPages - 4, currentPage - 2)
+													);
+													const pageNum = startPage + i;
+
+													if (pageNum > totalPages) return null;
+
+													return (
+														<PaginationItem key={pageNum}>
+															<PaginationLink
+																onClick={() => goToPage(pageNum)}
+																isActive={pageNum === currentPage}
+															>
+																{pageNum}
+															</PaginationLink>
+														</PaginationItem>
+													);
+												}
+											)}
+
+											{currentPage < totalPages - 3 && totalPages > 5 && (
+												<PaginationItem>
+													<PaginationEllipsis />
+												</PaginationItem>
+											)}
+
+											<PaginationItem>
+												<PaginationNext
+													onClick={() => goToPage(currentPage + 1)}
+													disabled={currentPage === totalPages}
+												/>
+											</PaginationItem>
+										</PaginationContent>
+									</Pagination>
 								</div>
 							)}
 						</>

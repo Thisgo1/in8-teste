@@ -27,10 +27,9 @@ export function ProductCard({ product, isMock = false }: ProductCardProps) {
 		>
 			<Link href={isMock ? "#" : `/products/${product.id}`}>
 				<div className="relative aspect-square">
-					<Image
+					<img
 						src={product.imageUrl || "/placeholder-product.jpg"}
 						alt={product.name}
-						fill
 						className="object-cover"
 					/>
 					{isMock && (

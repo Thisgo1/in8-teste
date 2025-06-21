@@ -100,17 +100,9 @@ export default function Header() {
 									)}
 								</Link>
 
-								<DropdownMenu>
-									<DropdownMenuTrigger className="text-gray-800">
-										<FaUser className="text-xl" />
-									</DropdownMenuTrigger>
-									<DropdownMenuContent>
-										<DropdownMenuSeparator />
-										<Link href={"/user"}>
-											<DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
-										</Link>
-									</DropdownMenuContent>
-								</DropdownMenu>
+								<Link href='/user'>
+									<FaUser className="text-xl text-gray-800" />
+								</Link>
 							</div>
 						</div>
 					</div>
